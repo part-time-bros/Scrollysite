@@ -581,6 +581,8 @@ const ctx=canvas.getContext('2d');
 const TOTAL=151;
 const frames=[];
 let loaded=0,isReady=false,curF=0,targetF=0,rafOn=false;
+let curCard=0, targetCard=0;
+const secPower=document.getElementById('sec-power');
 let isMob=window.innerWidth<768;
 function resize(){isMob=window.innerWidth<768;canvas.width=window.innerWidth;canvas.height=window.innerHeight;drawFrame(curF);}
 window.addEventListener('resize',resize);
@@ -658,14 +660,11 @@ function onScroll(){
     const show=prog>.82;
     document.getElementById('exp-hint').style.opacity=Math.min(1,Math.max(0,(prog-.82)*8));
     document.querySelectorAll('.hs-dot').forEach(h=>h.classList.toggle('vis',show));
-    // Card slide over hero — drives sec-power translateY based on scroll progress
-    const secPower = document.getElementById('sec-power');
-    // Map last 25% of sequence scroll → card sliding from 100vh down to 0
-    const cardProgress = Math.max(0, (prog - 0.75) / 0.25);
-    const cardY = (1 - cardProgress) * 100;
-    secPower.style.transform = `translateY(${cardY}vh)`;
+    // Card slide over hero — target based on scroll progress
+    const cardProgress = Math.max(0, (prog - 0.78) / 0.22);
+    targetCard = cardProgress; // 0 = hidden below, 1 = fully covering
 
-    // Bottom fade — subtle only
+    // Bottom fade
     parBottom.style.opacity = Math.min(1, Math.max(0, (prog - 0.92) * 20));
     if(!rafOn){rafOn=true;requestAnimationFrame(renderLoop);}
   }
@@ -673,10 +672,17 @@ function onScroll(){
 }
 
 function renderLoop(){
+  // Smooth frame
   curF=lerp(curF,targetF,isMob?.22:.11);
   drawFrame(curF);
-  if(Math.abs(curF-targetF)>.04){requestAnimationFrame(renderLoop);}
-  else{curF=targetF;drawFrame(curF);rafOn=false;}
+  // Smooth card — slightly faster lerp so it feels responsive
+  curCard=lerp(curCard,targetCard,.09);
+  const cardY=(1-curCard)*100;
+  secPower.style.transform=`translateY(${cardY}vh)`;
+
+  const stillMoving=Math.abs(curF-targetF)>.04 || Math.abs(curCard-targetCard)>.0005;
+  if(stillMoving){requestAnimationFrame(renderLoop);}
+  else{curF=targetF;drawFrame(curF);curCard=targetCard;secPower.style.transform=`translateY(${(1-curCard)*100}vh)`;rafOn=false;}
 }
 window.addEventListener('scroll',onScroll,{passive:true});
 
