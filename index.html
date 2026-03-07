@@ -662,6 +662,7 @@ const TOTAL_FRAMES = 151;
 const frames = new Array(TOTAL_FRAMES);
 let loadedCount = 0;
 let isReady = false;
+let currentFrame = 0;
 
 function showSite() {
   if (isReady) return;
@@ -715,7 +716,6 @@ function loadFrames() {
 }
 
 // ─── DRAW FRAME ─────────────────────────────────────────────────
-let currentFrame = 0;
 
 function drawFrame(index) {
   const img = frames[index];
