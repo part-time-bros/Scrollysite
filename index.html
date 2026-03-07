@@ -394,6 +394,33 @@
       color: rgba(255,255,255,0.25); text-transform: uppercase;
       margin-top: 4px;
     }
+    /* ─── MOBILE ────────────────────────────────── */
+    @media (max-width: 768px) {
+      #nav { padding: 18px 20px; }
+      #nav-links { display: none; }
+      #nav-badge { font-size: 8px; }
+      #hero-block { left: 20px; bottom: 100px; }
+      #hero-title { font-size: 52px; }
+      #hero-stats { gap: 20px; }
+      .hstat-val { font-size: 22px; }
+      #phase-wrap { right: 20px; }
+      #phase-num { font-size: 70px; }
+      #phase-name { font-size: 26px; }
+      #scroll-hint { right: 20px; bottom: 40px; }
+      #explore-hint { font-size: 8px; bottom: 20px; }
+      .hotspot-label { display: none; }
+      .hotspot { width: 44px; height: 44px; }
+      .hotspot-dot { width: 10px; height: 10px; }
+      #detail-panel { width: 100%; right: -100%; top: auto; bottom: 0;
+        transform: none; height: 75vh; border-left: none;
+        border-top: 1px solid rgba(204,0,0,0.4); }
+      #detail-panel.open { right: 0; }
+      #d-name { font-size: 40px; }
+      #panel-inner { padding: 36px 24px; }
+      #panel-footer { padding: 20px 24px; }
+      #after-section { grid-template-columns: 1fr; padding: 60px 24px; gap: 40px; }
+      .corner { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -468,51 +495,51 @@
     <!-- Explore hint -->
     <div id="explore-hint">Click a glowing part to explore</div>
 
-    <!-- HOTSPOTS — positioned on final exploded frame -->
-    <!-- Engine -->
-    <div class="hotspot" id="hs-engine" style="left:41%;top:52%">
+    <!-- HOTSPOTS — precisely mapped to final exploded frame -->
+    <!-- Engine - centre of frame, engine block visible -->
+    <div class="hotspot" id="hs-engine" style="left:47%;top:50%">
       <div class="hotspot-ring"></div>
       <div class="hotspot-dot"></div>
       <div class="hotspot-label">Engine</div>
     </div>
-    <!-- Hood -->
-    <div class="hotspot" id="hs-hood" style="left:42%;top:22%">
+    <!-- Hood - open hood upper left area -->
+    <div class="hotspot" id="hs-hood" style="left:37%;top:27%">
       <div class="hotspot-ring"></div>
       <div class="hotspot-dot"></div>
       <div class="hotspot-label">Hood</div>
     </div>
-    <!-- Front Door -->
-    <div class="hotspot" id="hs-door" style="left:19%;top:48%">
+    <!-- Front Door - far left open door -->
+    <div class="hotspot" id="hs-door" style="left:21%;top:37%">
       <div class="hotspot-ring"></div>
       <div class="hotspot-dot"></div>
       <div class="hotspot-label left-label">Front Door</div>
     </div>
-    <!-- Exhaust -->
-    <div class="hotspot" id="hs-exhaust" style="left:82%;top:62%">
+    <!-- Exhaust - right side long pipes -->
+    <div class="hotspot" id="hs-exhaust" style="left:78%;top:58%">
       <div class="hotspot-ring"></div>
       <div class="hotspot-dot"></div>
       <div class="hotspot-label left-label">Exhaust</div>
     </div>
-    <!-- Gearbox -->
-    <div class="hotspot" id="hs-gearbox" style="left:57%;top:78%">
+    <!-- Gearbox - bottom centre driveshaft area -->
+    <div class="hotspot" id="hs-gearbox" style="left:58%;top:75%">
       <div class="hotspot-ring"></div>
       <div class="hotspot-dot"></div>
       <div class="hotspot-label">Gearbox</div>
     </div>
-    <!-- Radiator -->
-    <div class="hotspot" id="hs-radiator" style="left:14%;top:65%">
+    <!-- Radiator - far bottom left -->
+    <div class="hotspot" id="hs-radiator" style="left:11%;top:60%">
       <div class="hotspot-ring"></div>
       <div class="hotspot-dot"></div>
       <div class="hotspot-label">Radiator</div>
     </div>
-    <!-- Wheel -->
-    <div class="hotspot" id="hs-wheel" style="left:85%;top:46%">
+    <!-- Wheel - far right rear wheel -->
+    <div class="hotspot" id="hs-wheel" style="left:84%;top:48%">
       <div class="hotspot-ring"></div>
       <div class="hotspot-dot"></div>
       <div class="hotspot-label left-label">Wheel</div>
     </div>
-    <!-- Roof -->
-    <div class="hotspot" id="hs-roof" style="left:50%;top:13%">
+    <!-- Roof - top centre floating roof panel -->
+    <div class="hotspot" id="hs-roof" style="left:51%;top:9%">
       <div class="hotspot-ring"></div>
       <div class="hotspot-dot"></div>
       <div class="hotspot-label">Roof Panel</div>
@@ -657,13 +684,42 @@ const PARTS = {
   },
 };
 
-// ─── FRAME LOADING ──────────────────────────────────────────────
+// ─── CANVAS SETUP ───────────────────────────────────────────────
+const canvas = document.getElementById('car-canvas');
+const ctx = canvas.getContext('2d');
 const TOTAL_FRAMES = 151;
-const frames = new Array(TOTAL_FRAMES);
+const frames = [];
 let loadedCount = 0;
 let isReady = false;
 let currentFrame = 0;
+let targetFrame = 0;
+let rafRunning = false;
 
+function padNum(n) { return String(n).padStart(3, '0'); }
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  drawFrame(currentFrame);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// ─── DRAW FRAME ─────────────────────────────────────────────────
+function drawFrame(index) {
+  const i = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(index)));
+  const img = frames[i];
+  if (!img || !img.complete || !img.naturalWidth) return;
+  const cw = canvas.width, ch = canvas.height;
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const scale = Math.max(cw / iw, ch / ih);
+  const dw = iw * scale, dh = ih * scale;
+  const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
+  ctx.clearRect(0, 0, cw, ch);
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+// ─── FRAME LOADING ──────────────────────────────────────────────
 function showSite() {
   if (isReady) return;
   isReady = true;
@@ -671,98 +727,60 @@ function showSite() {
   drawFrame(0);
 }
 
-// Force show site after 10 seconds no matter what
-setTimeout(showSite, 10000);
-
-const canvas = document.getElementById('car-canvas');
-const ctx = canvas.getContext('2d');
-
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  if (frames[currentFrame] instanceof HTMLImageElement && frames[currentFrame].complete) {
-    drawFrame(currentFrame);
-  }
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-function padNum(n) { return String(n).padStart(3,'0'); }
+// Safety timeout — show site after 12s no matter what
+setTimeout(showSite, 12000);
 
 function loadFrames() {
   const preFill = document.getElementById('pre-fill');
-  const prePct = document.getElementById('pre-pct');
+  const prePct  = document.getElementById('pre-pct');
 
-  for (let i = 1; i <= TOTAL_FRAMES; i++) {
+  function onDone() {
+    loadedCount++;
+    const pct = Math.round((loadedCount / TOTAL_FRAMES) * 100);
+    preFill.style.width = pct + '%';
+    prePct.textContent  = pct + '%';
+    // Draw first frame as soon as it loads
+    if (loadedCount === 1) drawFrame(0);
+    if (loadedCount >= TOTAL_FRAMES) showSite();
+  }
+
+  for (let i = 0; i < TOTAL_FRAMES; i++) {
     const img = new Image();
-    const idx = i - 1;
-    img.onload = () => {
-      loadedCount++;
-      const pct = Math.round((loadedCount / TOTAL_FRAMES) * 100);
-      preFill.style.width = pct + '%';
-      prePct.textContent = pct + '%';
-      if (loadedCount === TOTAL_FRAMES) showSite();
-    };
-    img.onerror = () => {
-      loadedCount++;
-      const pct = Math.round((loadedCount / TOTAL_FRAMES) * 100);
-      preFill.style.width = pct + '%';
-      prePct.textContent = pct + '%';
-      if (loadedCount === TOTAL_FRAMES) showSite();
-    };
-    img.src = `/Scrollysite/frames/ezgif-frame-${padNum(i)}.jpg`;
-    frames[idx] = img;
+    img.onload  = onDone;
+    img.onerror = onDone;
+    img.src = `/Scrollysite/frames/ezgif-frame-${padNum(i + 1)}.jpg`;
+    frames[i] = img;
   }
 }
 
-// ─── DRAW FRAME ─────────────────────────────────────────────────
-
-function drawFrame(index) {
-  const img = frames[index];
-  if (!img || !img.complete) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Cover-fit: fill canvas, centre image
-  const cw = canvas.width, ch = canvas.height;
-  const iw = img.naturalWidth, ih = img.naturalHeight;
-  const scale = Math.max(cw / iw, ch / ih);
-  const dw = iw * scale, dh = ih * scale;
-  const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
-  ctx.drawImage(img, dx, dy, dw, dh);
-}
+// ─── SCROLL → FRAME MAPPING ─────────────────────────────────────
 
 // ─── SCROLL → FRAME MAPPING ─────────────────────────────────────
 const scrollContainer = document.getElementById('scroll-container');
-const containerHeight = scrollContainer.offsetHeight;
-
-let targetFrame = 0;
-let rafRunning = false;
 
 function lerp(a, b, t) { return a + (b - a) * t; }
 
-function onScroll() {
-  if (!isReady) return;
-  const scrollY = window.scrollY;
-  const maxScroll = scrollContainer.offsetHeight - window.innerHeight;
-  const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+// Mobile: track touch-based scroll position manually
+let mobileScrollY = 0;
+let touchStartY = 0;
+let isMobile = window.innerWidth < 768;
+window.addEventListener('resize', () => { isMobile = window.innerWidth < 768; });
 
-  // Target frame
-  targetFrame = progress * (TOTAL_FRAMES - 1);
+function getScrollY() { return window.scrollY; }
 
+function updateUI(progress) {
   // Progress bar
   document.getElementById('progress-bar').style.width = (progress * 100) + '%';
 
-  // Hero fade out early
+  // Hero fade
   const heroOpacity = Math.max(0, 1 - progress * 9);
   document.getElementById('hero-block').style.opacity = heroOpacity;
   document.getElementById('scroll-hint').style.opacity = heroOpacity;
 
-  // Phase indicator
+  // Phase
   const phaseOpacity = Math.min(1, Math.max(0, (progress - 0.12) * 7));
   document.getElementById('phase-wrap').style.opacity = phaseOpacity;
 
-  // Phase number & name
   if (progress < 0.35) {
     document.getElementById('phase-num').textContent = '01';
     document.getElementById('phase-name').textContent = 'DISASSEMBLY';
@@ -774,36 +792,41 @@ function onScroll() {
   } else {
     document.getElementById('phase-num').textContent = '03';
     document.getElementById('phase-name').textContent = 'EXPLORE';
-    document.getElementById('phase-desc').textContent = 'Click any part to explore';
+    document.getElementById('phase-desc').textContent = 'Tap any glowing part';
   }
 
-  // Hotspots — show near end
-  const hotspotsVisible = progress > 0.72;
-  const exploreHint = Math.min(1, Math.max(0, (progress - 0.72) * 5));
-  document.getElementById('explore-hint').style.opacity = exploreHint;
+  // Hotspots
+  const hotspotsVisible = progress > 0.82;
+  document.getElementById('explore-hint').style.opacity =
+    Math.min(1, Math.max(0, (progress - 0.82) * 6));
   document.querySelectorAll('.hotspot').forEach(h => {
     h.classList.toggle('visible', hotspotsVisible);
   });
+}
 
+function onScroll() {
+  if (!isReady) return;
+  const maxScroll = scrollContainer.offsetHeight - window.innerHeight;
+  const progress = Math.min(1, Math.max(0, getScrollY() / maxScroll));
+  targetFrame = progress * (TOTAL_FRAMES - 1);
+  updateUI(progress);
   if (!rafRunning) {
     rafRunning = true;
     requestAnimationFrame(renderLoop);
   }
 }
 
+// Smoother render loop — tighter lerp on mobile for responsiveness
 function renderLoop() {
-  // Smooth interpolation towards target frame
-  currentFrame = lerp(currentFrame, targetFrame, 0.18);
-  const frameIndex = Math.round(currentFrame);
-  const clampedIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, frameIndex));
-  drawFrame(clampedIndex);
-
-  if (Math.abs(currentFrame - targetFrame) > 0.1) {
+  const speed = isMobile ? 0.25 : 0.14;
+  currentFrame = lerp(currentFrame, targetFrame, speed);
+  drawFrame(currentFrame);
+  if (Math.abs(currentFrame - targetFrame) > 0.05) {
     requestAnimationFrame(renderLoop);
   } else {
+    currentFrame = targetFrame;
+    drawFrame(currentFrame);
     rafRunning = false;
-    // Ensure final frame is exact
-    drawFrame(Math.round(targetFrame));
   }
 }
 
