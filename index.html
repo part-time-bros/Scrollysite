@@ -709,7 +709,8 @@ function loadFrames() {
       prePct.textContent = pct + '%';
       if (loadedCount === TOTAL_FRAMES) showSite();
     };
-    img.src = `frames/ezgif-frame-${padNum(i)}.jpg`;
+    const base = location.pathname.replace(/\/[^/]*$/, '');
+    img.src = `${base}/frames/ezgif-frame-${padNum(i)}.jpg`;
     frames[idx] = img;
   }
 }
