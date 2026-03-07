@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMW M5 CS — Anatomy of a Legend</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #CC0000;
+      --red-bright: #FF1111;
+      --red-dim: rgba(204,0,0,0.18);
+      --black: #060606;
+      --dark: #0f0f0f;
+      --white: #EFEFEF;
+      --grey: rgba(255,255,255,0.08);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── PRELOADER ─────────────────────────────── */
+    #preloader {
+      position: fixed; inset: 0;
+      background: var(--black);
+      z-index: 9999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 28px;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #preloader.hidden { opacity: 0; visibility: hidden; }
+    #pre-logo {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 52px; letter-spacing: 0.12em;
+      color: var(--white);
+    }
+    #pre-logo span { color: var(--red); }
+    #pre-track {
+      width: 280px; height: 1px;
+      background: rgba(255,255,255,0.1);
+      position: relative; overflow: hidden;
+    }
+    #pre-fill {
+      position: absolute; top: 0; left: 0;
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--red), var(--red-bright));
+      box-shadow: 0 0 10px var(--red);
+      transition: width 0.1s linear;
+    }
+    #pre-pct {
+      font-size: 11px; letter-spacing: 0.5em;
+      color: rgba(255,255,255,0.3); text-transform: uppercase;
+    }
+    #pre-label {
+      font-size: 10px; letter-spacing: 0.4em;
+      color: rgba(255,255,255,0.2); text-transform: uppercase;
+      margin-top: -14px;
+    }
+
+    /* ─── STICKY SCENE ──────────────────────────── */
+    #scroll-container { height: 650vh; }
+
+    #sticky-scene {
+      position: sticky; top: 0;
+      width: 100%; height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ─── CANVAS ────────────────────────────────── */
+    #car-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    /* ─── VIGNETTE ──────────────────────────────── */
+    #vignette {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center,
+        transparent 40%,
+        rgba(6,6,6,0.55) 80%,
+        rgba(6,6,6,0.92) 100%);
+      pointer-events: none; z-index: 2;
+    }
+
+    /* ─── TOP NAV ───────────────────────────────── */
+    #nav {
+      position: absolute; top: 0; left: 0; right: 0;
+      z-index: 20;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 28px 52px;
+    }
+    #nav-logo {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 26px; letter-spacing: 0.3em;
+    }
+    #nav-logo span { color: var(--red); }
+    #nav-links {
+      display: flex; gap: 40px;
+      font-size: 10px; letter-spacing: 0.4em;
+      text-transform: uppercase; color: rgba(255,255,255,0.3);
+    }
+    #nav-links a { color: inherit; text-decoration: none; transition: color 0.2s; }
+    #nav-links a:hover { color: var(--red); }
+    #nav-badge {
+      font-size: 9px; letter-spacing: 0.4em;
+      color: rgba(255,255,255,0.2); text-transform: uppercase;
+    }
+
+    /* ─── PROGRESS LINE ─────────────────────────── */
+    #progress-bar {
+      position: absolute; top: 0; left: 0;
+      height: 2px; width: 0%;
+      background: linear-gradient(90deg, transparent, var(--red), var(--red-bright));
+      box-shadow: 0 0 12px var(--red);
+      z-index: 30; transition: width 0.06s linear;
+    }
+
+    /* ─── HERO TEXT ─────────────────────────────── */
+    #hero-block {
+      position: absolute; bottom: 68px; left: 52px;
+      z-index: 20; transition: opacity 0.4s;
+    }
+    #hero-eyebrow {
+      font-size: 9px; letter-spacing: 0.6em;
+      color: var(--red); text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    #hero-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(56px, 9vw, 130px);
+      line-height: 0.92; letter-spacing: 0.04em;
+      color: var(--white);
+    }
+    #hero-title .r { color: var(--red); }
+    #hero-stats {
+      display: flex; gap: 36px; margin-top: 22px;
+    }
+    .hstat { display: flex; flex-direction: column; gap: 3px; }
+    .hstat-val {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 30px; color: var(--white); letter-spacing: 0.06em;
+    }
+    .hstat-label {
+      font-size: 9px; letter-spacing: 0.4em;
+      color: rgba(255,255,255,0.3); text-transform: uppercase;
+    }
+
+    /* ─── SCROLL HINT ───────────────────────────── */
+    #scroll-hint {
+      position: absolute; right: 52px; bottom: 60px;
+      z-index: 20;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      font-size: 9px; letter-spacing: 0.45em; text-transform: uppercase;
+      color: rgba(255,255,255,0.25); transition: opacity 0.4s;
+    }
+    #scroll-hint-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, var(--red), transparent);
+      animation: blink 1.8s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.15;} }
+
+    /* ─── PHASE INDICATOR ───────────────────────── */
+    #phase-wrap {
+      position: absolute; top: 50%; right: 52px;
+      transform: translateY(-50%);
+      z-index: 20; text-align: right;
+      opacity: 0; transition: opacity 0.5s;
+    }
+    #phase-num {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 110px; line-height: 1;
+      color: rgba(204,0,0,0.08);
+      letter-spacing: -0.02em;
+    }
+    #phase-name {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(28px, 4vw, 52px);
+      color: var(--red); letter-spacing: 0.08em;
+      margin-top: -18px;
+    }
+    #phase-desc {
+      font-size: 10px; letter-spacing: 0.4em;
+      color: rgba(255,255,255,0.25); text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    /* ─── EXPLORE HINT ──────────────────────────── */
+    #explore-hint {
+      position: absolute; bottom: 36px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 20; text-align: center;
+      opacity: 0; transition: opacity 0.5s;
+      font-size: 9px; letter-spacing: 0.5em;
+      text-transform: uppercase; color: rgba(255,255,255,0.25);
+    }
+    #explore-hint::before {
+      content: ''; display: block; width: 22px; height: 22px;
+      border: 1px solid rgba(204,0,0,0.5);
+      border-radius: 50%; margin: 0 auto 10px;
+      animation: ping 2s ease-in-out infinite;
+    }
+    @keyframes ping {
+      0%,100%{transform:scale(1);opacity:1;}
+      50%{transform:scale(1.4);opacity:0.3;}
+    }
+
+    /* ─── HOTSPOTS ──────────────────────────────── */
+    .hotspot {
+      position: absolute; z-index: 25;
+      width: 38px; height: 38px;
+      cursor: pointer; opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+      transition: opacity 0.5s, transform 0.5s;
+      pointer-events: none;
+    }
+    .hotspot.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+    .hotspot-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 1px solid rgba(204,0,0,0.6);
+      animation: hotspot-pulse 2.2s ease-in-out infinite;
+    }
+    .hotspot-dot {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 10px var(--red), 0 0 20px rgba(204,0,0,0.5);
+    }
+    .hotspot-label {
+      position: absolute; top: 50%; left: calc(100% + 12px);
+      transform: translateY(-50%);
+      font-size: 9px; letter-spacing: 0.35em;
+      text-transform: uppercase; white-space: nowrap;
+      color: rgba(255,255,255,0.5);
+    }
+    .hotspot-label.left-label {
+      left: auto; right: calc(100% + 12px); text-align: right;
+    }
+    @keyframes hotspot-pulse {
+      0%,100%{transform:scale(1);opacity:0.7;}
+      50%{transform:scale(1.35);opacity:0.2;}
+    }
+
+    /* ─── DETAIL PANEL ──────────────────────────── */
+    #detail-panel {
+      position: fixed; right: -500px; top: 0; bottom: 0;
+      width: 440px;
+      background: rgba(6,6,6,0.98);
+      border-left: 1px solid rgba(204,0,0,0.25);
+      z-index: 200;
+      transition: right 0.75s cubic-bezier(0.16,1,0.3,1);
+      display: flex; flex-direction: column;
+      backdrop-filter: blur(20px);
+    }
+    #detail-panel.open { right: 0; }
+    #panel-top-line {
+      height: 2px; width: 100%;
+      background: linear-gradient(90deg, var(--red), transparent);
+    }
+    #panel-inner { padding: 52px 44px; flex: 1; overflow-y: auto; }
+    #panel-inner::-webkit-scrollbar { display: none; }
+    #d-close {
+      position: absolute; top: 20px; right: 20px;
+      background: none; border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.35); cursor: pointer;
+      width: 34px; height: 34px; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    #d-close:hover { border-color: var(--red); color: var(--red-bright); }
+    #d-tag {
+      font-size: 9px; letter-spacing: 0.55em;
+      color: var(--red); text-transform: uppercase; margin-bottom: 10px;
+    }
+    #d-name {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 58px; line-height: 0.95; letter-spacing: 0.03em;
+      color: var(--white); margin-bottom: 24px;
+    }
+    #d-divider {
+      width: 32px; height: 1px;
+      background: var(--red); margin-bottom: 24px;
+    }
+    #d-desc {
+      font-size: 14px; line-height: 1.8;
+      color: rgba(255,255,255,0.45); margin-bottom: 36px;
+      font-weight: 300;
+    }
+    #d-specs-title {
+      font-size: 9px; letter-spacing: 0.5em;
+      color: rgba(255,255,255,0.2); text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .spec-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .spec-row:last-child { border: none; }
+    .spec-key {
+      font-size: 10px; letter-spacing: 0.3em;
+      text-transform: uppercase; color: rgba(255,255,255,0.28);
+    }
+    .spec-val {
+      font-size: 13px; font-weight: 600;
+      color: var(--white); letter-spacing: 0.05em;
+    }
+    #panel-footer {
+      padding: 28px 44px; border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    #d-cta {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: var(--red); color: var(--white);
+      padding: 14px 28px; cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px; letter-spacing: 0.4em;
+      text-transform: uppercase; border: none;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #d-cta:hover { background: var(--red-bright); box-shadow: 0 0 24px rgba(204,0,0,0.5); }
+
+    /* ─── BOTTOM RED LINE ───────────────────────── */
+    #bottom-line {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 1px; background: linear-gradient(90deg, transparent, var(--red), transparent);
+      z-index: 20; opacity: 0.3;
+    }
+
+    /* ─── CORNER MARKS ──────────────────────────── */
+    .corner {
+      position: absolute; width: 18px; height: 18px;
+      z-index: 20; opacity: 0.25;
+    }
+    .corner.tl { top: 22px; left: 22px; border-top: 1px solid var(--red); border-left: 1px solid var(--red); }
+    .corner.tr { top: 22px; right: 22px; border-top: 1px solid var(--red); border-right: 1px solid var(--red); }
+    .corner.bl { bottom: 22px; left: 22px; border-bottom: 1px solid var(--red); border-left: 1px solid var(--red); }
+    .corner.br { bottom: 22px; right: 22px; border-bottom: 1px solid var(--red); border-right: 1px solid var(--red); }
+
+    /* ─── GRAIN OVERLAY ─────────────────────────── */
+    #grain {
+      position: fixed; inset: 0; z-index: 998; pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px;
+    }
+
+    /* ─── AFTER-SEQUENCE SECTION ────────────────── */
+    #after-section {
+      background: var(--black);
+      padding: 120px 52px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      align-items: center;
+    }
+    #after-left h2 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(48px, 6vw, 88px);
+      line-height: 0.95; letter-spacing: 0.04em;
+      margin-bottom: 28px;
+    }
+    #after-left h2 span { color: var(--red); }
+    #after-left p {
+      font-size: 15px; line-height: 1.9;
+      color: rgba(255,255,255,0.4); font-weight: 300;
+      max-width: 440px;
+    }
+    #after-specs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+    }
+    .as-cell {
+      background: var(--dark);
+      padding: 32px 28px; border: 1px solid var(--grey);
+    }
+    .as-val {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 44px; color: var(--red); letter-spacing: 0.06em;
+    }
+    .as-key {
+      font-size: 9px; letter-spacing: 0.4em;
+      color: rgba(255,255,255,0.25); text-transform: uppercase;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div id="pre-logo">BMW <span>M5</span> CS</div>
+  <div id="pre-track"><div id="pre-fill"></div></div>
+  <div id="pre-pct">0%</div>
+  <div id="pre-label">Loading 151 frames</div>
+</div>
+
+<!-- SCROLLABLE CONTAINER -->
+<div id="scroll-container">
+  <div id="sticky-scene">
+    <div id="progress-bar"></div>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <!-- Canvas for image sequence -->
+    <canvas id="car-canvas"></canvas>
+
+    <!-- Vignette -->
+    <div id="vignette"></div>
+
+    <!-- Nav -->
+    <nav id="nav">
+      <div id="nav-logo">BMW <span>M</span></div>
+      <div id="nav-links">
+        <a href="#">Models</a>
+        <a href="#">Performance</a>
+        <a href="#">Configure</a>
+      </div>
+      <div id="nav-badge">M5 CS · Competition Sport</div>
+    </nav>
+
+    <!-- Hero block -->
+    <div id="hero-block">
+      <div id="hero-eyebrow">The Most Powerful M5 Ever Built</div>
+      <div id="hero-title">BMW<br><span class="r">M5 CS</span></div>
+      <div id="hero-stats">
+        <div class="hstat">
+          <div class="hstat-val">627</div>
+          <div class="hstat-label">Horsepower</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-val">3.3s</div>
+          <div class="hstat-label">0–100 km/h</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-val">305</div>
+          <div class="hstat-label">Top Speed km/h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div id="scroll-hint">
+      <div>Scroll</div>
+      <div id="scroll-hint-line"></div>
+    </div>
+
+    <!-- Phase indicator -->
+    <div id="phase-wrap">
+      <div id="phase-num">01</div>
+      <div id="phase-name">DISASSEMBLY</div>
+      <div id="phase-desc">Click any part to explore</div>
+    </div>
+
+    <!-- Explore hint -->
+    <div id="explore-hint">Click a glowing part to explore</div>
+
+    <!-- HOTSPOTS — positioned on final exploded frame -->
+    <!-- Engine -->
+    <div class="hotspot" id="hs-engine" style="left:41%;top:52%">
+      <div class="hotspot-ring"></div>
+      <div class="hotspot-dot"></div>
+      <div class="hotspot-label">Engine</div>
+    </div>
+    <!-- Hood -->
+    <div class="hotspot" id="hs-hood" style="left:42%;top:22%">
+      <div class="hotspot-ring"></div>
+      <div class="hotspot-dot"></div>
+      <div class="hotspot-label">Hood</div>
+    </div>
+    <!-- Front Door -->
+    <div class="hotspot" id="hs-door" style="left:19%;top:48%">
+      <div class="hotspot-ring"></div>
+      <div class="hotspot-dot"></div>
+      <div class="hotspot-label left-label">Front Door</div>
+    </div>
+    <!-- Exhaust -->
+    <div class="hotspot" id="hs-exhaust" style="left:82%;top:62%">
+      <div class="hotspot-ring"></div>
+      <div class="hotspot-dot"></div>
+      <div class="hotspot-label left-label">Exhaust</div>
+    </div>
+    <!-- Gearbox -->
+    <div class="hotspot" id="hs-gearbox" style="left:57%;top:78%">
+      <div class="hotspot-ring"></div>
+      <div class="hotspot-dot"></div>
+      <div class="hotspot-label">Gearbox</div>
+    </div>
+    <!-- Radiator -->
+    <div class="hotspot" id="hs-radiator" style="left:14%;top:65%">
+      <div class="hotspot-ring"></div>
+      <div class="hotspot-dot"></div>
+      <div class="hotspot-label">Radiator</div>
+    </div>
+    <!-- Wheel -->
+    <div class="hotspot" id="hs-wheel" style="left:85%;top:46%">
+      <div class="hotspot-ring"></div>
+      <div class="hotspot-dot"></div>
+      <div class="hotspot-label left-label">Wheel</div>
+    </div>
+    <!-- Roof -->
+    <div class="hotspot" id="hs-roof" style="left:50%;top:13%">
+      <div class="hotspot-ring"></div>
+      <div class="hotspot-dot"></div>
+      <div class="hotspot-label">Roof Panel</div>
+    </div>
+
+    <div id="bottom-line"></div>
+  </div>
+</div>
+
+<!-- AFTER SCROLL SECTION -->
+<div id="after-section">
+  <div id="after-left">
+    <h2>Every Part.<br><span>Perfected.</span></h2>
+    <p>The M5 CS is not built — it is assembled by hand, component by component, by M engineers who treat each part as the foundation of something extraordinary. From carbon ceramic brakes to the titanium exhaust, no compromise exists.</p>
+  </div>
+  <div id="after-specs">
+    <div class="as-cell"><div class="as-val">627</div><div class="as-key">HP Output</div></div>
+    <div class="as-cell"><div class="as-val">750</div><div class="as-key">Nm Torque</div></div>
+    <div class="as-cell"><div class="as-val">1.8T</div><div class="as-key">Kerb Weight</div></div>
+    <div class="as-cell"><div class="as-val">V8</div><div class="as-key">4.4L Biturbo</div></div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div id="detail-panel">
+  <div id="panel-top-line"></div>
+  <button id="d-close">✕</button>
+  <div id="panel-inner">
+    <div id="d-tag">Component Detail</div>
+    <div id="d-name">ENGINE</div>
+    <div id="d-divider"></div>
+    <div id="d-desc"></div>
+    <div id="d-specs-title">Specifications</div>
+    <div id="d-specs"></div>
+  </div>
+  <div id="panel-footer">
+    <button id="d-cta">Configure This Model →</button>
+  </div>
+</div>
+
+<div id="grain"></div>
+
+<script>
+// ─── PART DATA ──────────────────────────────────────────────────
+const PARTS = {
+  'hs-engine': {
+    name: 'S63 V8 Biturbo',
+    tag: 'Power Unit',
+    desc: 'The heart of the M5 CS is a hand-assembled 4.4-litre V8 biturbo engine producing 627 hp — the most powerful engine ever fitted to an M5. Each unit is signed by its assembler and bench-tested for 6 hours before installation.',
+    specs: [
+      { k: 'Configuration', v: 'V8 Twin-Turbo' },
+      { k: 'Displacement', v: '4,395 cc' },
+      { k: 'Output', v: '627 HP @ 6,000 RPM' },
+      { k: 'Torque', v: '750 Nm @ 1,800 RPM' },
+      { k: 'Compression', v: '10.5:1' },
+      { k: 'Redline', v: '7,200 RPM' },
+    ]
+  },
+  'hs-hood': {
+    name: 'Carbon Hood',
+    tag: 'Exterior Panel',
+    desc: 'The M5 CS hood is crafted from carbon fibre-reinforced plastic (CFRP), saving 6.3 kg over the standard steel unit. Integrated NACA-style ducts channel airflow into the engine bay, reducing under-hood temperature by up to 15°C at speed.',
+    specs: [
+      { k: 'Material', v: 'CFRP (Carbon Fibre)' },
+      { k: 'Weight Saving', v: '6.3 kg vs Steel' },
+      { k: 'Air Ducts', v: 'NACA Profile × 2' },
+      { k: 'Finish', v: 'Gloss Carbon or Body Colour' },
+      { k: 'Fastening', v: 'Gas-Assisted Struts' },
+    ]
+  },
+  'hs-door': {
+    name: 'Front Door',
+    tag: 'Body Structure',
+    desc: 'The M5 CS front door combines high-strength aluminium outer skin with CFRP inner reinforcements. Side-impact protection uses ultra-high-strength steel boron beams. Carbon door sills reduce weight while providing a visual signature of the CS specification.',
+    specs: [
+      { k: 'Outer Skin', v: 'Aluminium Alloy' },
+      { k: 'Inner Frame', v: 'CFRP Reinforced' },
+      { k: 'Side Impact', v: 'Boron Steel Beam' },
+      { k: 'Glass', v: 'Acoustic Laminated' },
+      { k: 'Sill', v: 'Carbon Fibre CS' },
+    ]
+  },
+  'hs-exhaust': {
+    name: 'Titanium Exhaust',
+    tag: 'Exhaust System',
+    desc: 'The M5 CS is equipped with a bespoke titanium sport exhaust system — the first production M car to feature this material. Titanium construction saves 7.2 kg versus steel and produces a distinctly harder, sharper acoustic character through its four 90mm tips.',
+    specs: [
+      { k: 'Material', v: 'Grade 5 Titanium' },
+      { k: 'Tip Diameter', v: '4 × 90 mm' },
+      { k: 'Weight', v: '7.2 kg lighter than steel' },
+      { k: 'Valve Control', v: 'Active Flap System' },
+      { k: 'Note Tuning', v: 'M-specific acoustic map' },
+    ]
+  },
+  'hs-gearbox': {
+    name: '8-Speed M-DCT',
+    tag: 'Transmission',
+    desc: 'Power is channelled through a bespoke 8-speed M Steptronic transmission with optimised shift mapping for the CS. In Drivelogic Sport mode, full-throttle upshifts execute in under 100 milliseconds — seamless, brutal, and effortless.',
+    specs: [
+      { k: 'Type', v: '8-Speed M Steptronic' },
+      { k: 'Shift Time', v: '<100 ms' },
+      { k: 'Drive', v: 'M xDrive AWD' },
+      { k: 'Rear Bias', v: 'Up to 100% rear torque' },
+      { k: '2WD Mode', v: 'Available (rear-only)' },
+    ]
+  },
+  'hs-radiator': {
+    name: 'Cooling System',
+    tag: 'Thermal Management',
+    desc: 'The M5 CS features a three-radiator cooling architecture with a large front-mounted intercooler and separate oil coolers for engine and gearbox. The system maintains optimal operating temperature even under sustained track use, keeping power consistent across consecutive laps.',
+    specs: [
+      { k: 'Radiators', v: '3 × Independent units' },
+      { k: 'Intercooler', v: 'Front-Mounted (air-air)' },
+      { k: 'Engine Oil', v: 'Dedicated cooler' },
+      { k: 'Gearbox Oil', v: 'Dedicated cooler' },
+      { k: 'Flow Rate', v: '340 L/min at redline' },
+    ]
+  },
+  'hs-wheel': {
+    name: 'Forged M Wheel',
+    tag: 'Wheel & Tyre',
+    desc: 'The M5 CS rides on exclusive 20-inch forged light-alloy wheels weighing just 9.4 kg each — significantly lighter than cast alternatives. Wrapped in Michelin Pilot Sport Cup 2 tyres developed specifically for the CS, they communicate every nuance of the road surface.',
+    specs: [
+      { k: 'Size (Front)', v: '20 × 9.5J' },
+      { k: 'Size (Rear)', v: '20 × 10.5J' },
+      { k: 'Construction', v: 'Forged Light-Alloy' },
+      { k: 'Weight', v: '9.4 kg per wheel' },
+      { k: 'Tyre', v: 'Michelin PS Cup 2' },
+    ]
+  },
+  'hs-roof': {
+    name: 'Carbon Roof Panel',
+    tag: 'Body Structure',
+    desc: 'The full-length carbon fibre roof panel is one of the defining visual elements of the M5 CS. Weighing 40% less than the standard steel panel, it lowers the centre of gravity by 4mm and contributes to the CS\'s sharper, more agile dynamic character.',
+    specs: [
+      { k: 'Material', v: 'CFRP (2×2 weave)' },
+      { k: 'Weight Saving', v: '40% vs steel' },
+      { k: 'CoG Reduction', v: '4 mm lower' },
+      { k: 'Finish', v: 'High-Gloss Exposed Carbon' },
+      { k: 'Antenna', v: 'Shark fin integrated' },
+    ]
+  },
+};
+
+// ─── FRAME LOADING ──────────────────────────────────────────────
+const TOTAL_FRAMES = 151;
+const frames = new Array(TOTAL_FRAMES);
+let loadedCount = 0;
+let isReady = false;
+
+const canvas = document.getElementById('car-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  if (frames[currentFrame] instanceof HTMLImageElement && frames[currentFrame].complete) {
+    drawFrame(currentFrame);
+  }
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function padNum(n) { return String(n).padStart(3,'0'); }
+
+function loadFrames() {
+  const preFill = document.getElementById('pre-fill');
+  const prePct = document.getElementById('pre-pct');
+
+  for (let i = 1; i <= TOTAL_FRAMES; i++) {
+    const img = new Image();
+    const idx = i - 1;
+    img.onload = () => {
+      loadedCount++;
+      const pct = Math.round((loadedCount / TOTAL_FRAMES) * 100);
+      preFill.style.width = pct + '%';
+      prePct.textContent = pct + '%';
+      if (loadedCount === TOTAL_FRAMES) {
+        isReady = true;
+        setTimeout(() => {
+          document.getElementById('preloader').classList.add('hidden');
+          drawFrame(0);
+        }, 400);
+      }
+    };
+    img.src = `frames/ezgif-frame-${padNum(i)}.jpg`;
+    frames[idx] = img;
+  }
+}
+
+// ─── DRAW FRAME ─────────────────────────────────────────────────
+let currentFrame = 0;
+
+function drawFrame(index) {
+  const img = frames[index];
+  if (!img || !img.complete) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Cover-fit: fill canvas, centre image
+  const cw = canvas.width, ch = canvas.height;
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const scale = Math.max(cw / iw, ch / ih);
+  const dw = iw * scale, dh = ih * scale;
+  const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+// ─── SCROLL → FRAME MAPPING ─────────────────────────────────────
+const scrollContainer = document.getElementById('scroll-container');
+const containerHeight = scrollContainer.offsetHeight;
+
+let targetFrame = 0;
+let rafRunning = false;
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function onScroll() {
+  if (!isReady) return;
+  const scrollY = window.scrollY;
+  const maxScroll = scrollContainer.offsetHeight - window.innerHeight;
+  const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+
+  // Target frame
+  targetFrame = progress * (TOTAL_FRAMES - 1);
+
+  // Progress bar
+  document.getElementById('progress-bar').style.width = (progress * 100) + '%';
+
+  // Hero fade out early
+  const heroOpacity = Math.max(0, 1 - progress * 9);
+  document.getElementById('hero-block').style.opacity = heroOpacity;
+  document.getElementById('scroll-hint').style.opacity = heroOpacity;
+
+  // Phase indicator
+  const phaseOpacity = Math.min(1, Math.max(0, (progress - 0.12) * 7));
+  document.getElementById('phase-wrap').style.opacity = phaseOpacity;
+
+  // Phase number & name
+  if (progress < 0.35) {
+    document.getElementById('phase-num').textContent = '01';
+    document.getElementById('phase-name').textContent = 'DISASSEMBLY';
+    document.getElementById('phase-desc').textContent = 'Watch the M5 CS come apart';
+  } else if (progress < 0.7) {
+    document.getElementById('phase-num').textContent = '02';
+    document.getElementById('phase-name').textContent = 'ANATOMY';
+    document.getElementById('phase-desc').textContent = 'Every component revealed';
+  } else {
+    document.getElementById('phase-num').textContent = '03';
+    document.getElementById('phase-name').textContent = 'EXPLORE';
+    document.getElementById('phase-desc').textContent = 'Click any part to explore';
+  }
+
+  // Hotspots — show near end
+  const hotspotsVisible = progress > 0.72;
+  const exploreHint = Math.min(1, Math.max(0, (progress - 0.72) * 5));
+  document.getElementById('explore-hint').style.opacity = exploreHint;
+  document.querySelectorAll('.hotspot').forEach(h => {
+    h.classList.toggle('visible', hotspotsVisible);
+  });
+
+  if (!rafRunning) {
+    rafRunning = true;
+    requestAnimationFrame(renderLoop);
+  }
+}
+
+function renderLoop() {
+  // Smooth interpolation towards target frame
+  currentFrame = lerp(currentFrame, targetFrame, 0.18);
+  const frameIndex = Math.round(currentFrame);
+  const clampedIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, frameIndex));
+  drawFrame(clampedIndex);
+
+  if (Math.abs(currentFrame - targetFrame) > 0.1) {
+    requestAnimationFrame(renderLoop);
+  } else {
+    rafRunning = false;
+    // Ensure final frame is exact
+    drawFrame(Math.round(targetFrame));
+  }
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+
+// ─── HOTSPOT CLICKS ─────────────────────────────────────────────
+const panel = document.getElementById('detail-panel');
+
+document.querySelectorAll('.hotspot').forEach(hs => {
+  hs.addEventListener('click', () => {
+    const data = PARTS[hs.id];
+    if (!data) return;
+    document.getElementById('d-tag').textContent = data.tag;
+    document.getElementById('d-name').textContent = data.name;
+    document.getElementById('d-desc').textContent = data.desc;
+    document.getElementById('d-specs').innerHTML = data.specs.map(s =>
+      `<div class="spec-row">
+        <span class="spec-key">${s.k}</span>
+        <span class="spec-val">${s.v}</span>
+      </div>`
+    ).join('');
+    panel.classList.add('open');
+  });
+});
+
+document.getElementById('d-close').addEventListener('click', () => {
+  panel.classList.remove('open');
+});
+
+// Close panel on ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') panel.classList.remove('open');
+});
+
+// ─── INIT ────────────────────────────────────────────────────────
+loadFrames();
+</script>
+</body>
+</html>
