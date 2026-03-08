@@ -247,7 +247,65 @@
     /* ── GRAIN ───────────────────────────────── */
     #grain{position:fixed;inset:0;z-index:996;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;}
 
-    /* ── TOUCH / INTERACTIVE ─────────────────── */
+    /* ── ROTATE OVERLAY ──────────────────────── */
+    #rotate-overlay{
+      display:none;
+      position:fixed;inset:0;
+      background:var(--black);
+      z-index:99999;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:0;
+    }
+    #rotate-overlay.show{display:flex;}
+    #rot-bg-text{
+      position:absolute;
+      font-family:'Bebas Neue',cursive;
+      font-size:52vw;
+      color:rgba(255,255,255,.02);
+      letter-spacing:.05em;
+      user-select:none;
+      line-height:1;
+    }
+    #rot-icon{
+      position:relative;
+      width:64px;height:64px;
+      margin-bottom:40px;
+      animation:rotDevice 2.4s cubic-bezier(.16,1,.3,1) infinite;
+    }
+    #rot-icon svg{width:100%;height:100%;}
+    @keyframes rotDevice{
+      0%,30%{transform:rotate(0deg);}
+      60%,100%{transform:rotate(90deg);}
+    }
+    #rot-line{
+      width:48px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--red),transparent);
+      margin-bottom:32px;
+    }
+    #rot-title{
+      font-family:'Bebas Neue',cursive;
+      font-size:clamp(32px,10vw,48px);
+      letter-spacing:.08em;
+      color:var(--white);
+      margin-bottom:14px;
+      position:relative;
+    }
+    #rot-title span{color:var(--red);}
+    #rot-sub{
+      font-size:11px;
+      letter-spacing:.45em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.25);
+      position:relative;
+    }
+    #rot-corners .c{position:absolute;width:18px;height:18px;opacity:.2;}
+    #rot-corners .c.tl{top:24px;left:24px;border-top:1px solid var(--red);border-left:1px solid var(--red);}
+    #rot-corners .c.tr{top:24px;right:24px;border-top:1px solid var(--red);border-right:1px solid var(--red);}
+    #rot-corners .c.bl{bottom:24px;left:24px;border-bottom:1px solid var(--red);border-left:1px solid var(--red);}
+    #rot-corners .c.br{bottom:24px;right:24px;border-bottom:1px solid var(--red);border-right:1px solid var(--red);}
+    #rot-red-line{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);}
     a,button,.hs-dot,.eng-cell,.p-stat,.cta-btn{touch-action:manipulation;}
 
     /* ── REDUCED MOTION ──────────────────────── */
@@ -297,7 +355,50 @@
       #nav{padding:20px 36px;}
     }
 
-    /* ── WEBKIT / IOS FIXES ──────────────────── */
+    /* ── MOBILE LANDSCAPE ────────────────────── */
+    /* Phones rotated sideways — short viewport, wide width */
+    @media(max-width:900px) and (orientation:landscape){
+      /* Hero — compress vertically, side-by-side layout */
+      #hero{left:20px;bottom:16px;right:50%;}
+      #hero-title{font-size:clamp(32px,8vh,56px);}
+      #hero-stats{margin-top:10px;gap:14px;}
+      .hs-v{font-size:22px;}.hs-l{font-size:7px;}
+
+      /* Phase — smaller, tucked in */
+      #ph-n{font-size:56px;}#ph-name{font-size:18px;margin-top:-14px;}
+      #phase{right:8px;top:45%;}
+
+      /* Scroll hint — smaller */
+      #scroll-hint{bottom:12px;right:12px;}
+      #sh-line{height:32px;}
+
+      /* Sections — 2-col grids work great in landscape, reduce vertical padding */
+      #sec-power,#sec-eng,#sec-perf,#sec-rival,#sec-cta{padding:50px 32px;}
+      #sec-power .inner{grid-template-columns:1fr 1fr;gap:32px;align-items:center;}
+      #power-right{grid-template-columns:1fr 1fr;}
+      .sec-h{font-size:clamp(36px,6vw,64px);}
+
+      /* Engineering — 2 cols in landscape */
+      #eng-grid{grid-template-columns:1fr 1fr;}
+      .eng-cell:nth-child(3n){border-right:1px solid var(--grey);}
+      .eng-cell:nth-child(2n){border-right:none;}
+      .eng-cell{padding:30px 24px;}
+      #eng-header{flex-direction:row;align-items:flex-end;}
+
+      /* Performance — 4 cols fit in landscape */
+      #perf-grid{grid-template-columns:repeat(4,1fr);}
+      .perf-cell{padding:30px 16px;}
+      #perf-head{font-size:clamp(48px,10vw,100px);margin-bottom:40px;}
+
+      /* Panel — slide from right in landscape like desktop */
+      #panel{width:380px;right:-380px;top:0;bottom:0;height:auto;border-top:none;border-left:1px solid rgba(204,0,0,.18);transition:right .85s cubic-bezier(.16,1,.3,1);}
+      #panel.open{right:0;bottom:auto;}
+
+      /* Preloader */
+      #pre-logo{font-size:clamp(40px,8vh,80px);}
+      #pre-bar-wrap{margin:24px 0 12px;}
+      #pre-foot{bottom:20px;}
+    }
     @supports(-webkit-backdrop-filter:blur(1px)){
       #nav.scrolled{-webkit-backdrop-filter:blur(20px);}
       #panel{-webkit-backdrop-filter:blur(28px);}
@@ -305,6 +406,29 @@
   </style>
 </head>
 <body>
+
+<div id="rotate-overlay">
+  <div id="rot-bg-text">M5</div>
+  <div id="rot-corners">
+    <div class="c tl"></div><div class="c tr"></div>
+    <div class="c bl"></div><div class="c br"></div>
+  </div>
+  <div id="rot-icon">
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Phone outline -->
+      <rect x="20" y="8" width="24" height="40" rx="4" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+      <rect x="22" y="12" width="20" height="28" rx="1" fill="rgba(255,255,255,0.04)"/>
+      <circle cx="32" cy="44" r="1.5" fill="rgba(255,255,255,0.2)"/>
+      <!-- Rotate arrow -->
+      <path d="M44 20 A16 16 0 0 1 32 48" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <polyline points="44,14 44,20 50,20" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </div>
+  <div id="rot-line"></div>
+  <div id="rot-title">Rotate Your <span>Device</span></div>
+  <div id="rot-sub">Best experienced in landscape</div>
+  <div id="rot-red-line"></div>
+</div>
 
 <div id="cur"></div>
 <div id="cur-r"></div>
@@ -498,6 +622,17 @@ const PARTS = {
   'h-wheel':{ name:'Forged M Wheel', tag:'Wheel & Tyre', desc:'20-inch forged alloy wheels at 9.4 kg each. Michelin Pilot Sport Cup 2 R co-developed for the M5 CS.', specs:[{k:'Front',v:'20 × 9.5J Forged'},{k:'Rear',v:'20 × 10.5J Forged'},{k:'Weight',v:'9.4 kg per wheel'},{k:'Tyre',v:'Michelin PS Cup 2 R'}] },
   'h-roof':{ name:'Carbon Roof Panel', tag:'Body Structure', desc:'Full-length CFRP roof. 40% lighter than steel, lowers centre of gravity 4mm.', specs:[{k:'Material',v:'CFRP 2×2 Weave'},{k:'Weight Saving',v:'40% vs Steel'},{k:'CoG Reduction',v:'4 mm Lower'},{k:'Finish',v:'High-Gloss Exposed Carbon'}] },
 };
+
+// ── ROTATE OVERLAY ───────────────────────────────────────────────
+const rotOverlay = document.getElementById('rotate-overlay');
+function checkOrientation(){
+  const isMobile = window.innerWidth < 1024 && 'ontouchstart' in window;
+  const isPortrait = window.innerHeight > window.innerWidth;
+  rotOverlay.classList.toggle('show', isMobile && isPortrait);
+}
+checkOrientation();
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 120));
 
 // ── CURSOR ───────────────────────────────────────────────────────
 const cur = document.getElementById('cur');
