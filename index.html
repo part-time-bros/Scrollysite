@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#060606">
+  <meta name="description" content="BMW M5 CS — Anatomy of a Legend. 627 HP. The most powerful M5 ever built.">
   <title>BMW M5 CS — Anatomy of a Legend</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -51,7 +53,7 @@
     /* ── SCROLL SEQUENCE ─────────────────────── */
     /* 800vh total: 700 for animation + 100 for sec-power rise */
     #seq-wrap { height: 800vh; position: relative; }
-    #seq-scene { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
+    #seq-scene { position: sticky; top: 0; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; }
     #car-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
     #par-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center,transparent 30%,rgba(6,6,6,.5) 72%,rgba(6,6,6,.97) 100%); pointer-events: none; }
     #par-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 260px; background: linear-gradient(to bottom,transparent,var(--black)); opacity: 0; pointer-events: none; z-index: 4; }
@@ -62,6 +64,7 @@
       position: relative;
       z-index: 10;
       margin-top: -100vh;
+      margin-top: -100dvh;
       transform: translateY(100%);
       will-change: transform;
       box-shadow: 0 -32px 80px rgba(0,0,0,1), 0 -1px 0 rgba(204,0,0,0.18);
@@ -244,26 +247,60 @@
     /* ── GRAIN ───────────────────────────────── */
     #grain{position:fixed;inset:0;z-index:996;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;}
 
+    /* ── TOUCH / INTERACTIVE ─────────────────── */
+    a,button,.hs-dot,.eng-cell,.p-stat,.cta-btn{touch-action:manipulation;}
+
+    /* ── REDUCED MOTION ──────────────────────── */
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
+      #dna-track{animation:none;}
+    }
+
     /* ── MOBILE ──────────────────────────────── */
     @media(max-width:768px){
       html,body{cursor:auto;}
       #cur,#cur-r{display:none;}
+      a,button,.hs-dot,.eng-cell,.p-stat,.cta-btn,#p-close,#p-cta{cursor:auto!important;}
+      #seq-scene{height:100dvh;}
+      #sec-power{margin-top:-100dvh;}
+      #panel{bottom:-92dvh;height:92dvh;}
       #nav{padding:16px 20px;}#nav-links{display:none;}#nav-badge{font-size:7px;letter-spacing:.2em;}
-      #hero{left:20px;bottom:110px;}#hero-title{font-size:58px;}#hero-stats{gap:16px;}.hs-sep{display:none;}
-      #phase{right:16px;}#ph-n{font-size:80px;}#ph-name{font-size:26px;}
-      #scroll-hint{right:16px;bottom:44px;}
+      #hero{left:20px;bottom:100px;}
+      #hero-title{font-size:clamp(42px,14vw,64px);}
+      #hero-stats{gap:12px;flex-wrap:wrap;}.hs-sep{display:none;}
+      #phase{right:12px;}#ph-n{font-size:72px;}#ph-name{font-size:22px;}#ph-desc{font-size:8px;}
+      #scroll-hint{right:12px;bottom:40px;}
       .hs-lbl{display:none;}.hs-dot{width:46px;height:46px;}.hs-core{width:12px;height:12px;}
-      #panel{width:100%;right:auto;top:auto;bottom:-92vh;height:92vh;border-left:none;border-top:1px solid rgba(204,0,0,.3);transition:bottom .85s cubic-bezier(.16,1,.3,1);}
-      #panel.open{bottom:0;}#p-name{font-size:40px;}#p-inner{padding:30px 22px;}#p-foot{padding:18px 22px;}
-      #sec-power .inner{grid-template-columns:1fr;}#power-right{grid-template-columns:1fr 1fr;}
-      #eng-grid{grid-template-columns:1fr;}.eng-cell{border-right:none;}
-      #perf-grid{grid-template-columns:1fr 1fr;}
-      #rival-table{display:block;overflow-x:auto;}
+      #panel{width:100%;right:auto;top:auto;border-left:none;border-top:1px solid rgba(204,0,0,.3);transition:bottom .85s cubic-bezier(.16,1,.3,1);}
+      #panel.open{bottom:0;}#p-name{font-size:36px;}#p-inner{padding:28px 20px;}#p-foot{padding:16px 20px;}
+      #sec-power,#sec-eng,#sec-perf,#sec-rival,#sec-cta{padding:60px 20px;}
+      #sec-power .inner{grid-template-columns:1fr;gap:40px;}
+      #power-right{grid-template-columns:1fr 1fr;}
+      #eng-header{flex-direction:column;gap:20px;align-items:flex-start;}
+      #eng-grid{grid-template-columns:1fr;}.eng-cell{border-right:none;padding:36px 24px;}
+      #perf-grid{grid-template-columns:1fr 1fr;}.perf-cell{padding:40px 20px;}
+      #rival-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
       #cta-btns{flex-direction:column;align-items:center;}
-      #eng-header{flex-direction:column;gap:24px;align-items:flex-start;}
-      #footer{flex-direction:column;gap:16px;text-align:center;}
+      #cta-bg-text{font-size:clamp(80px,28vw,200px);}
+      #footer{flex-direction:column;gap:14px;text-align:center;padding:32px 20px;}
       .corner{display:none;}
-      #sec-power,#sec-eng,#sec-perf,#sec-rival,#sec-cta{padding:70px 22px;}
+      #pre-bar-wrap{width:min(340px,85vw);}
+      #pre-foot{gap:28px;flex-wrap:wrap;justify-content:center;padding:0 20px;}
+    }
+
+    /* ── TABLET ──────────────────────────────── */
+    @media(min-width:769px) and (max-width:1100px){
+      #sec-power .inner{gap:40px;}
+      #eng-grid{grid-template-columns:1fr 1fr;}.eng-cell:nth-child(3n){border-right:1px solid var(--grey);}.eng-cell:nth-child(2n){border-right:none;}
+      #perf-grid{grid-template-columns:1fr 1fr;}
+      #sec-power,#sec-eng,#sec-perf,#sec-rival,#sec-cta{padding:90px 36px;}
+      #nav{padding:20px 36px;}
+    }
+
+    /* ── WEBKIT / IOS FIXES ──────────────────── */
+    @supports(-webkit-backdrop-filter:blur(1px)){
+      #nav.scrolled{-webkit-backdrop-filter:blur(20px);}
+      #panel{-webkit-backdrop-filter:blur(28px);}
     }
   </style>
 </head>
@@ -463,158 +500,187 @@ const PARTS = {
 };
 
 // ── CURSOR ───────────────────────────────────────────────────────
-const cur=document.getElementById('cur'),curR=document.getElementById('cur-r');
-let cx=0,cy=0,rx=0,ry=0;
-window.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY;cur.style.left=cx+'px';cur.style.top=cy+'px';});
-(function ac(){rx+=(cx-rx)*.1;ry+=(cy-ry)*.1;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(ac);})();
-document.querySelectorAll('a,button,.hs-dot,.eng-cell,.p-stat').forEach(el=>{
-  el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));
-  el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'));
+const cur = document.getElementById('cur');
+const curR = document.getElementById('cur-r');
+let cx=0, cy=0, rx=0, ry=0;
+window.addEventListener('mousemove', e => {
+  cx = e.clientX; cy = e.clientY;
+  cur.style.left = cx + 'px'; cur.style.top = cy + 'px';
+});
+(function curLoop(){ rx+=(cx-rx)*.1; ry+=(cy-ry)*.1; curR.style.left=rx+'px'; curR.style.top=ry+'px'; requestAnimationFrame(curLoop); })();
+document.querySelectorAll('a,button,.hs-dot,.eng-cell,.p-stat').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
 });
 
 // ── CANVAS ───────────────────────────────────────────────────────
-const canvas=document.getElementById('car-canvas');
-const ctx=canvas.getContext('2d');
-const TOTAL=151;
-const frames=[];
-let loaded=0,isReady=false,curF=0,targetF=0,rafOn=false;
-let isMob=window.innerWidth<768;
-window.addEventListener('resize',()=>{isMob=window.innerWidth<768;canvas.width=window.innerWidth;canvas.height=window.innerHeight;drawFrame(curF);});
-canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+const canvas = document.getElementById('car-canvas');
+const ctx = canvas.getContext('2d');
+const TOTAL = 151;
+const frames = [];
+let loaded = 0, isReady = false, curF = 0, targetF = 0, rafOn = false;
+let isMob = window.innerWidth < 768;
 
-function pad(n){return String(n).padStart(3,'0');}
-function drawFrame(idx){
-  const i=Math.max(0,Math.min(TOTAL-1,Math.round(idx)));
-  const img=frames[i];
-  if(!img||!img.complete||!img.naturalWidth)return;
-  const cw=canvas.width,ch=canvas.height;
-  const sc=Math.max(cw/img.naturalWidth,ch/img.naturalHeight);
-  ctx.clearRect(0,0,cw,ch);
-  ctx.drawImage(img,(cw-img.naturalWidth*sc)/2,(ch-img.naturalHeight*sc)/2,img.naturalWidth*sc,img.naturalHeight*sc);
+function setCanvasSize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
-function showSite(){
-  if(isReady)return; isReady=true;
+setCanvasSize();
+
+// Debounced resize — avoids thrashing on every pixel of chrome resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    isMob = window.innerWidth < 768;
+    setCanvasSize();
+    // Recache seqMax after resize
+    seqMax = seqWrap.offsetHeight - window.innerHeight;
+    drawFrame(curF);
+  }, 100);
+});
+
+function pad(n) { return String(n).padStart(3, '0'); }
+
+function drawFrame(idx) {
+  const i = Math.max(0, Math.min(TOTAL-1, Math.round(idx)));
+  const img = frames[i];
+  if (!img || !img.complete || !img.naturalWidth) return;
+  const cw = canvas.width, ch = canvas.height;
+  const sc = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+  ctx.clearRect(0, 0, cw, ch);
+  ctx.drawImage(img, (cw - img.naturalWidth*sc)/2, (ch - img.naturalHeight*sc)/2, img.naturalWidth*sc, img.naturalHeight*sc);
+}
+
+function showSite() {
+  if (isReady) return;
+  isReady = true;
   drawFrame(0);
   document.getElementById('preloader').classList.add('hidden');
 }
-setTimeout(showSite,14000);
-function loadFrames(){
-  const fill=document.getElementById('pre-fill');
-  const pct=document.getElementById('pre-n');
-  function done(){
+setTimeout(showSite, 14000);
+
+function loadFrames() {
+  const fill = document.getElementById('pre-fill');
+  const pct  = document.getElementById('pre-n');
+  function done() {
     loaded++;
-    const p=Math.round((loaded/TOTAL)*100);
-    fill.style.width=p+'%'; pct.textContent=p+'%';
-    if(loaded===1)drawFrame(0);
-    if(loaded>=TOTAL)setTimeout(showSite,600);
+    const p = Math.round((loaded / TOTAL) * 100);
+    fill.style.width = p + '%'; pct.textContent = p + '%';
+    if (loaded === 1) drawFrame(0);
+    if (loaded >= TOTAL) setTimeout(showSite, 600);
   }
-  for(let i=0;i<TOTAL;i++){
-    const img=new Image();
-    img.onload=done; img.onerror=done;
-    img.src=`/Scrollysite/frames/ezgif-frame-${pad(i+1)}.jpg`;
-    frames[i]=img;
+  for (let i = 0; i < TOTAL; i++) {
+    const img = new Image();
+    img.onload = done; img.onerror = done;
+    img.src = `/Scrollysite/frames/ezgif-frame-${pad(i+1)}.jpg`;
+    frames[i] = img;
   }
 }
 
-// ── CARD (sec-power rises) ────────────────────────────────────────
-const secPower   = document.getElementById('sec-power');
-const seqWrap    = document.getElementById('seq-wrap');
-const parBottom  = document.getElementById('par-bottom');
-let curCard=0, targetCard=0;
-function lerp(a,b,t){return a+(b-a)*t;}
+// ── CACHED DOM REFS (never query inside scroll handler) ───────────
+const secPower  = document.getElementById('sec-power');
+const seqWrap   = document.getElementById('seq-wrap');
+const parBottom = document.getElementById('par-bottom');
+const navEl     = document.getElementById('nav');
+const progEl    = document.getElementById('prog');
+const heroEl    = document.getElementById('hero');
+const hintEl    = document.getElementById('scroll-hint');
+const phaseEl   = document.getElementById('phase');
+const phN       = document.getElementById('ph-n');
+const phName    = document.getElementById('ph-name');
+const phDesc    = document.getElementById('ph-desc');
+const expHint   = document.getElementById('exp-hint');
+const hsDots    = document.querySelectorAll('.hs-dot');
+let seqMax = seqWrap.offsetHeight - window.innerHeight;
+
+let curCard = 0, targetCard = 0;
+function lerp(a, b, t) { return a + (b-a)*t; }
 
 // ── SCROLL ───────────────────────────────────────────────────────
-function onScroll(){
+function onScroll() {
   const sy = window.scrollY;
-  // seqMax = scroll distance until sticky scene finishes (700vh worth)
-  const seqMax = seqWrap.offsetHeight - window.innerHeight;
   const seqProg = Math.min(1, Math.max(0, sy / seqMax));
 
-  // Global progress bar
+  // Progress bar & nav — cheap, always run
   const totalH = document.body.scrollHeight - window.innerHeight;
-  document.getElementById('prog').style.width = (sy / totalH * 100) + '%';
-  document.getElementById('nav').classList.toggle('scrolled', sy > 80);
+  progEl.style.width = (sy / totalH * 100) + '%';
+  navEl.classList.toggle('scrolled', sy > 80);
 
-  if(isReady){
-    // Frames — use first 700vh (87.5% of 800vh seqMax)
-    const frameProg = Math.min(1, Math.max(0, sy / (seqMax * 0.875)));
-    targetF = frameProg * (TOTAL - 1);
+  if (!isReady) return;
 
-    // sec-power rises during last 100vh of seq (87.5%→100% of seqMax)
-    targetCard = Math.max(0, Math.min(1, (seqProg - 0.875) / 0.125));
+  // Frame progress — first 87.5% of seqMax = 700vh of animation
+  const frameProg = Math.min(1, Math.max(0, sy / (seqMax * 0.875)));
+  targetF = frameProg * (TOTAL - 1);
 
-    // Hero UI
-    const hO = Math.max(0, 1 - frameProg * 8);
-    document.getElementById('hero').style.opacity = hO;
-    document.getElementById('scroll-hint').style.opacity = hO;
-    document.getElementById('phase').style.opacity = Math.min(1, Math.max(0, (frameProg-.1)*6));
-    if(frameProg<.33){document.getElementById('ph-n').textContent='01';document.getElementById('ph-name').textContent='DISASSEMBLY';document.getElementById('ph-desc').textContent='Watch the M5 CS come apart';}
-    else if(frameProg<.7){document.getElementById('ph-n').textContent='02';document.getElementById('ph-name').textContent='ANATOMY';document.getElementById('ph-desc').textContent='Every component revealed';}
-    else{document.getElementById('ph-n').textContent='03';document.getElementById('ph-name').textContent='EXPLORE';document.getElementById('ph-desc').textContent='Tap any glowing part';}
+  // Card rises — last 12.5% of seqMax (= 100vh of scrolling)
+  targetCard = Math.max(0, Math.min(1, (seqProg - 0.875) / 0.125));
 
-    // Hotspots hide as card rises
-    const showHs = frameProg > .82 && targetCard < 0.05;
-    document.getElementById('exp-hint').style.opacity = Math.min(1, Math.max(0,(frameProg-.82)*8)) * Math.max(0, 1 - targetCard * 20);
-    document.querySelectorAll('.hs-dot').forEach(h => h.classList.toggle('vis', showHs));
+  // Hero UI opacity
+  const hO = Math.max(0, 1 - frameProg * 8);
+  heroEl.style.opacity = hO;
+  hintEl.style.opacity = hO;
+  phaseEl.style.opacity = Math.min(1, Math.max(0, (frameProg - .1) * 6));
 
-    parBottom.style.opacity = Math.min(1, Math.max(0, (frameProg - 0.88) * 16));
+  // Phase label
+  if (frameProg < .33)      { phN.textContent='01'; phName.textContent='DISASSEMBLY'; phDesc.textContent='Watch the M5 CS come apart'; }
+  else if (frameProg < .7)  { phN.textContent='02'; phName.textContent='ANATOMY';     phDesc.textContent='Every component revealed'; }
+  else                       { phN.textContent='03'; phName.textContent='EXPLORE';     phDesc.textContent='Tap any glowing part'; }
 
-    if(!rafOn){rafOn=true;requestAnimationFrame(renderLoop);}
-  }
+  // Hotspots — show when frame done, hide when card rising
+  const showHs = frameProg > .82 && targetCard < 0.05;
+  expHint.style.opacity = Math.min(1, Math.max(0,(frameProg-.82)*8)) * Math.max(0, 1 - targetCard * 20);
+  hsDots.forEach(h => h.classList.toggle('vis', showHs));
+
+  // Bottom fade
+  parBottom.style.opacity = Math.min(1, Math.max(0, (frameProg - 0.88) * 16));
+
+  if (!rafOn) { rafOn = true; requestAnimationFrame(renderLoop); }
 }
 
-function renderLoop(){
+function renderLoop() {
   curF = lerp(curF, targetF, isMob ? .22 : .11);
   drawFrame(curF);
-
-  // sec-power rises from translateY(100%) → translateY(0%)
   curCard = lerp(curCard, targetCard, .09);
   secPower.style.transform = `translateY(${(1 - curCard) * 100}%)`;
-
-  const moving = Math.abs(curF-targetF)>.04 || Math.abs(curCard-targetCard)>.0003;
-  if(moving) requestAnimationFrame(renderLoop);
-  else { curF=targetF; drawFrame(curF); rafOn=false; }
+  const moving = Math.abs(curF-targetF) > .04 || Math.abs(curCard-targetCard) > .0003;
+  if (moving) requestAnimationFrame(renderLoop);
+  else { curF = targetF; drawFrame(curF); rafOn = false; }
 }
 
-window.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('scroll', onScroll, { passive: true });
 
 // ── SCROLL REVEALS ───────────────────────────────────────────────
-function animCounter(el){
-  if(el.dataset.done) return;
+function animCounter(el) {
+  if (el.dataset.done) return;
   el.dataset.done = '1';
   const target = parseInt(el.dataset.target);
-  const dur = 1600; const start = performance.now();
-  function step(now){
-    const t = Math.min(1,(now-start)/dur);
-    const ease = t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
-    el.textContent = Math.round(ease*target);
-    if(t<1) requestAnimationFrame(step); else el.textContent = target;
+  const dur = 1600, start = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now-start)/dur);
+    const ease = t < .5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
+    el.textContent = Math.round(ease * target);
+    if (t < 1) requestAnimationFrame(step); else el.textContent = target;
   }
   requestAnimationFrame(step);
 }
 
 const io = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if(!e.isIntersecting) return;
+    if (!e.isIntersecting) return;
     const el = e.target;
     el.classList.add('in');
-    // Counters inside this element
     el.querySelectorAll('.counter').forEach(c => animCounter(c));
-    // Performance bars
     el.querySelectorAll('.perf-bar').forEach(b => b.style.width = '100%');
-    // Engineering bars
     el.querySelectorAll('.eng-bar-fill').forEach(b => b.style.width = '100%');
-    // Rivalry bars — use data-w attribute
     el.querySelectorAll('.rbar-fill').forEach(b => {
       b.style.width = b.getAttribute('data-w') || '80%';
     });
   });
 }, { threshold: 0.1 });
 
-// Observe ONLY individual animated elements — never sections.
-// Use a Set so each element is only observed once even if it matches multiple selectors.
 const toObserve = new Set([
-  ...document.querySelectorAll('.reveal, .reveal-left, .reveal-right'),
+  ...document.querySelectorAll('.reveal,.reveal-left,.reveal-right'),
   ...document.querySelectorAll('.eng-cell'),
   ...document.querySelectorAll('.perf-cell'),
   ...document.querySelectorAll('#rival-table tbody tr'),
@@ -622,19 +688,31 @@ const toObserve = new Set([
 toObserve.forEach(el => io.observe(el));
 
 // ── DETAIL PANEL ─────────────────────────────────────────────────
-const panel=document.getElementById('panel');
-document.querySelectorAll('.hs-dot').forEach(hs=>{
-  hs.addEventListener('click',()=>{
-    const d=PARTS[hs.id]; if(!d)return;
-    document.getElementById('p-tag').textContent=d.tag;
-    document.getElementById('p-name').textContent=d.name;
-    document.getElementById('p-desc').textContent=d.desc;
-    document.getElementById('p-specs').innerHTML=d.specs.map(s=>`<div class="sr"><span class="sk">${s.k}</span><span class="sv">${s.v}</span></div>`).join('');
-    panel.classList.add('open');
-  });
+const panel = document.getElementById('panel');
+
+function openPanel(id) {
+  const d = PARTS[id];
+  if (!d) return;
+  document.getElementById('p-tag').textContent  = d.tag;
+  document.getElementById('p-name').textContent = d.name;
+  document.getElementById('p-desc').textContent = d.desc;
+  document.getElementById('p-specs').innerHTML  = d.specs.map(s =>
+    `<div class="sr"><span class="sk">${s.k}</span><span class="sv">${s.v}</span></div>`
+  ).join('');
+  panel.classList.add('open');
+}
+function closePanel() { panel.classList.remove('open'); }
+
+hsDots.forEach(hs => hs.addEventListener('click', () => openPanel(hs.id)));
+document.getElementById('p-close').addEventListener('click', closePanel);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+// Close panel on backdrop tap (mobile)
+document.addEventListener('click', e => {
+  if (panel.classList.contains('open') && !panel.contains(e.target) && !e.target.classList.contains('hs-dot') && !e.target.closest('.hs-dot')) {
+    closePanel();
+  }
 });
-document.getElementById('p-close').addEventListener('click',()=>panel.classList.remove('open'));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')panel.classList.remove('open');});
 
 loadFrames();
 </script>
